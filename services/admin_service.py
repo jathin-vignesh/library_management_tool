@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models.models import Book, User, BorrowRecord
-from schemas.bookschema import BookCreate, BookResponse
+from schemas.bookschema import BookCreate, BookResponse,BookUpdate
 from schemas.userschema import UserResponse
 from fastapi import HTTPException, status
 
@@ -19,17 +19,18 @@ def add_book(db: Session, book: BookCreate) -> BookResponse:
 def get_all_books(db: Session):
     return db.query(Book).all()
 
-def update_book(db: Session, book_id: int, book_data: dict):
+def update_book(db: Session, book_id: int, book_data: BookUpdate):
     book = db.query(Book).filter(Book.id == book_id).first()
     if not book:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
-    
-    for key, value in book_data.items():
-        if hasattr(book, key):
-            setattr(book, key, value)
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    for key, value in book_data.dict(exclude_unset=True).items():
+        setattr(book, key, value)
+
     db.commit()
     db.refresh(book)
     return book
+
 
 def delete_book(db: Session, book_id: int):
     # Fetch the book

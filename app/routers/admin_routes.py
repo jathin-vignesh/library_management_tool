@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from schemas.bookschema import BookCreate, BookResponse
+from schemas.bookschema import BookCreate, BookResponse,BookUpdate
 from schemas.userschema import UserResponse
 from schemas.borrowrecordschema import BorrowRecordResponse
 from services import admin_service
@@ -32,7 +32,7 @@ def get_all_books(
 @router.patch("/books/{book_id}", response_model=BookResponse)
 def update_book(
     book_id: int,
-    book_data: dict,
+    book_data: BookUpdate,
     db: Session = Depends(get_db),
     current_admin = Depends(admin_required)
 ):

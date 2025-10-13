@@ -17,3 +17,9 @@ class BookResponse(BookBase):
 
     class Config:
         from_attributes = True
+
+class BookUpdate(BaseModel):
+    title: Optional[str] = None
+    author: Optional[str] = None
+    isbn: Optional[str] = None
+    available_copies: Optional[int] = None
