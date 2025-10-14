@@ -1,12 +1,10 @@
 from sqlalchemy.orm import Session
 from models.models import User
 from schemas.userschema import UserCreate, UserResponse
-from passlib.context import CryptContext
-from fastapi import HTTPException, status,BackgroundTasks
+from fastapi import HTTPException, status, BackgroundTasks
 from utils.security import create_access_token
 from utils.email_utils import send_registration_email
 import bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     password_bytes = password.strip().encode("utf-8")[:72]
@@ -18,13 +16,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     plain_bytes = plain_password.strip().encode("utf-8")[:72]
     return bcrypt.checkpw(plain_bytes, hashed_password.encode("utf-8"))
 
-
-def register_user(db: Session, background_tasks: BackgroundTasks,user: UserCreate) -> UserResponse:
-    # Check if email already exists
+def register_user(db: Session, background_tasks: BackgroundTasks, user: UserCreate) -> UserResponse:
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
     hashed_password = hash_password(user.password)
     db_user = User(
@@ -32,7 +27,7 @@ def register_user(db: Session, background_tasks: BackgroundTasks,user: UserCreat
         email=user.email,
         mobile_number=user.mobile_number,
         password=hashed_password,
-        role="student"  # default role
+        role="student"
     )
     db.add(db_user)
     db.commit()
@@ -41,13 +36,9 @@ def register_user(db: Session, background_tasks: BackgroundTasks,user: UserCreat
     return db_user
 
 def register_admin_user(db: Session, user: UserCreate) -> UserResponse:
-    # Admin registration logic
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
     hashed_password = hash_password(user.password)
     db_user = User(
@@ -55,7 +46,7 @@ def register_admin_user(db: Session, user: UserCreate) -> UserResponse:
         email=user.email,
         mobile_number=user.mobile_number,
         password=hashed_password,
-        role="admin"  # admin role
+        role="admin"
     )
     db.add(db_user)
     db.commit()
