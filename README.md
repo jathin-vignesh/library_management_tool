@@ -45,6 +45,10 @@ Admins have full access to the system and can perform the following operations:
    - **Get all Borrow Records:** `GET /admin/borrowHist/`  
      Admins can view all borrow records.
 
+5. **Active Borrow Records**
+   - **Get all Borrow Records:** `GET /admin/activeBorrow/`  
+     Admins can view all ative borrow records.
+
 ---
 
 ### **Student**
