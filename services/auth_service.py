@@ -2,8 +2,9 @@ from sqlalchemy.orm import Session
 from models.models import User
 from schemas.userschema import UserCreate, UserResponse
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status,BackgroundTasks
 from utils.security import create_access_token
+from utils.email_utils import send_registration_email
 import bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -18,7 +19,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_bytes, hashed_password.encode("utf-8"))
 
 
-def register_user(db: Session, user: UserCreate) -> UserResponse:
+def register_user(db: Session, background_tasks: BackgroundTasks,user: UserCreate) -> UserResponse:
     # Check if email already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
@@ -36,6 +37,7 @@ def register_user(db: Session, user: UserCreate) -> UserResponse:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    send_registration_email(background_tasks, user.email, user.name)
     return db_user
 
 def register_admin_user(db: Session, user: UserCreate) -> UserResponse:

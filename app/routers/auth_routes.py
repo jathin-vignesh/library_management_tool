@@ -9,8 +9,7 @@ router = APIRouter(prefix="/auth")
 
 @router.post("/register", response_model=UserResponse)
 def register(user: UserCreate,background_tasks: BackgroundTasks,db: Session = Depends(get_db)):
-    send_registration_email(background_tasks, user.email, user.name)
-    return register_user(db, user)
+    return register_user(db,background_tasks, user)
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
