@@ -62,3 +62,6 @@ def get_all_users(db: Session):
 
 def get_borrow_table(db: Session):
     return db.query(BorrowRecord).all()
+
+def get_activeBorrow_table(db: Session):
+    return db.query(BorrowRecord).filter(BorrowRecord.is_returned==False)

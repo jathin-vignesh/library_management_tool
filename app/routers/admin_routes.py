@@ -60,3 +60,8 @@ def get_all_users(
 def get_all_borrow(db: Session = Depends(get_db),
     current_admin = Depends(admin_required)):
     return admin_service.get_borrow_table(db)
+
+@router.get("/activeBorrow",response_model=List[BorrowRecordResponse])
+def get_active_borrow(db: Session = Depends(get_db),
+    current_admin = Depends(admin_required)):
+    return admin_service.get_activeBorrow_table(db)
