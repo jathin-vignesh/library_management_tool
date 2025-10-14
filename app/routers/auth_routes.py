@@ -1,13 +1,15 @@
-from fastapi import APIRouter,Depends
+from fastapi import APIRouter,Depends,BackgroundTasks
 from schemas.userschema import UserCreate, UserResponse,UserLogin
 from services.auth_service import register_user,authenticate_user,register_admin_user  # logic in services
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 from db import get_db
+from utils.email_utils import send_registration_email
 router = APIRouter(prefix="/auth")
 
 @router.post("/register", response_model=UserResponse)
-def register(user: UserCreate,db: Session = Depends(get_db)):
+def register(user: UserCreate,background_tasks: BackgroundTasks,db: Session = Depends(get_db)):
+    send_registration_email(background_tasks, user.email, user.name)
     return register_user(db, user)
 
 @router.post("/login")
