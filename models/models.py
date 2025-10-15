@@ -39,6 +39,7 @@ class BorrowRecord(Base):
     book_id = Column(Integer, ForeignKey("books.id", ondelete="CASCADE"))
     borrow_date = Column(DateTime(timezone=True), server_default=func.now())
     return_date = Column(DateTime(timezone=True), nullable=True)
+    deadline_date = Column(DateTime(timezone=True), nullable=False, default=func.now())
     is_returned = Column(Boolean, default=False)
 
     # Relationships

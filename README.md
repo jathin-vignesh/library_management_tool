@@ -22,7 +22,8 @@ Admins have full access to the system and can perform the following operations:
 
 1. **Register Users**
    - Add students or other admins to the system.
-   - Endpoint: `POST /auth/register` (student)  
+   - Endpoint: `POST /auth/register` (student)
+      Students will recieve an email while registered  
      `POST /auth/register/admin` (admin)
    
 2. **Book Management**

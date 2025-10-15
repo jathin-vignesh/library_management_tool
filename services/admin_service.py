@@ -64,4 +64,5 @@ def get_borrow_table(db: Session):
     return db.query(BorrowRecord).all()
 
 def get_activeBorrow_table(db: Session):
-    return db.query(BorrowRecord).filter(BorrowRecord.is_returned==False)
+    records = db.query(BorrowRecord).filter(BorrowRecord.is_returned == False).all()
+    return records

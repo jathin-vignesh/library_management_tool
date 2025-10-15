@@ -7,3 +7,5 @@ passlib[bcrypt]
 jose[cryptography]
 pydantic[email]
 python-multipart
+fastapi-mail
+apscheduler

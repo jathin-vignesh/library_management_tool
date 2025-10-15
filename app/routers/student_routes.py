@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status,HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -20,23 +20,23 @@ def get_available_books(
 
 # ---------------- Borrow a book ----------------
 @router.post("/borrow/{book_id}", response_model=BorrowRecordResponse)
-def borrow_book(
+async def borrow_book(
     book_id: int,
     db: Session = Depends(get_db),
     current_user = Depends(student_required)
 ):
     user_id = current_user.id  # get ID from JWT token
-    return student_service.borrow_book(db, user_id, book_id)
+    return await student_service.borrow_book(db, user_id, book_id)
 
 # ---------------- Return a book ----------------
 @router.post("/return/{book_id}", response_model=BorrowRecordResponse)
-def return_book(
+async def return_book(
     book_id: int,
     db: Session = Depends(get_db),
     current_user = Depends(student_required)
 ):
     user_id = current_user.id
-    return student_service.return_book(db, user_id, book_id)
+    return await student_service.return_book(db, user_id, book_id)
 
 # ---------------- View student's borrow history ----------------
 @router.get("/borrow/history", response_model=List[BorrowRecordResponse])
@@ -46,3 +46,11 @@ def view_borrow_history(
 ):
     user_id = current_user.id
     return student_service.view_borrow_history(db, user_id)
+
+#search book by name
+@router.get("/search-book", response_model=BookResponse)
+def search_book(book_name: str, db: Session = Depends(get_db),current_user = Depends(student_required)):
+    book = student_service.search_book_by_name(db, book_name)
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book

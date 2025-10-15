@@ -4,7 +4,7 @@ from typing import List
 
 from schemas.bookschema import BookCreate, BookResponse,BookUpdate
 from schemas.userschema import UserResponse
-from schemas.borrowrecordschema import BorrowRecordResponse
+from schemas.borrowrecordschema import BorrowRecordResponse,AdminBorrowRecordResponse
 from services import admin_service
 from db import get_db
 from utils.dependencies import admin_required  # ensures only admin can access
@@ -61,7 +61,7 @@ def get_all_borrow(db: Session = Depends(get_db),
     current_admin = Depends(admin_required)):
     return admin_service.get_borrow_table(db)
 
-@router.get("/activeBorrow",response_model=List[BorrowRecordResponse])
+@router.get("/activeBorrow",response_model=List[AdminBorrowRecordResponse])
 def get_active_borrow(db: Session = Depends(get_db),
     current_admin = Depends(admin_required)):
     return admin_service.get_activeBorrow_table(db)

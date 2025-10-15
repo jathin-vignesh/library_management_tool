@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from db import Base,engine
 from app import route
+from tasks.scheduler import start_scheduler
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
+
 app.include_router(route.router)
+start_scheduler()
 @app.get('/')
 def greet():
     return 'Welcome to library!'

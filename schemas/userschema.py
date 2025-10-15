@@ -6,6 +6,17 @@ class UserBase(BaseModel):
     email: EmailStr
     mobile_number: Optional[str] = None
 
+
+class UserInfo(BaseModel):
+    id: int
+    name: str
+    email: str
+    mobile_number: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 class UserLogin(BaseModel):
     email: str
     password: str
