@@ -14,4 +14,5 @@ def start_scheduler():
 
     # Run once every day at midnight
     scheduler.add_job(job, "cron", hour=0, minute=0)
+    #scheduler.add_job(job, "interval", seconds=10)
     scheduler.start()
