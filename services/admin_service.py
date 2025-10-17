@@ -6,10 +6,25 @@ from fastapi import HTTPException, status
 
 # ----------------- BOOK OPERATIONS -----------------
 def add_book(db: Session, book: BookCreate) -> BookResponse:
+    # Check if any required fields are missing or empty
+    missing_fields = []
+    for field in ["title", "author", "isbn", "available_copies"]:
+        value = getattr(book, field)
+        if value is None or (isinstance(value, str) and not value.strip()):
+            missing_fields.append(field)
+
+    if missing_fields:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Please fill in all required fields: {', '.join(missing_fields)}"
+        )
+
+    # Check for duplicate ISBN
     existing_book = db.query(Book).filter(Book.isbn == book.isbn).first()
     if existing_book:
         raise HTTPException(status_code=400, detail="Book already exists")
-    
+
+    # Add book to DB
     db_book = Book(**book.dict())
     db.add(db_book)
     db.commit()

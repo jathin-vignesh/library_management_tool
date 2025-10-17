@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from db import Base 
 
@@ -10,12 +9,18 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    mobile_number = Column(String, nullable=True)
+    mobile_number = Column(String, nullable=False)
     password = Column(String, nullable=False)  
     role = Column(String, default="student", nullable=False)  
 
-    # Relationship
-    borrow_records = relationship("BorrowRecord", back_populates="user")
+    # Relationship with cascade
+    borrow_records = relationship(
+        "BorrowRecord",
+        back_populates="user",
+        cascade="all, delete-orphan",  # ORM cascade
+        passive_deletes=True           # DB handles deletion
+    )
+
 
 # BOOK MODEL
 class Book(Base):
@@ -24,19 +29,25 @@ class Book(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     author = Column(String, nullable=False)
-    isbn = Column(String, unique=True, index=True, nullable=True)
+    isbn = Column(String(13), unique=True, index=True, nullable=False)
     available_copies = Column(Integer, default=1, nullable=False)
 
-    # Relationship
-    borrow_records = relationship("BorrowRecord", back_populates="book")
+    # Relationship with cascade
+    borrow_records = relationship(
+        "BorrowRecord",
+        back_populates="book",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
 
 # BORROW RECORD MODEL
 class BorrowRecord(Base):
     __tablename__ = "borrow_records"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
-    book_id = Column(Integer, ForeignKey("books.id", ondelete="CASCADE"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    book_id = Column(Integer, ForeignKey("books.id", ondelete="CASCADE"), nullable=False)
     borrow_date = Column(DateTime(timezone=True), server_default=func.now())
     return_date = Column(DateTime(timezone=True), nullable=True)
     deadline_date = Column(DateTime(timezone=True), nullable=False, default=func.now())
