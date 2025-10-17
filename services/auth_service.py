@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from models.models import User
 from schemas.userschema import UserCreate, UserResponse
 from fastapi import HTTPException, status, BackgroundTasks
-from utils.security import create_access_token,create_refresh_token
+from utils.security import create_access_token,create_refresh_token,decode_refresh_token
 from utils.email_utils import send_registration_email
 import bcrypt
 from jose import JWTError, jwt
@@ -63,30 +63,13 @@ def authenticate_user(db: Session, email: str, password: str):
     access_token = create_access_token({"user_id": user.id, "role": user.role})
     refresh_token = create_refresh_token({"user_id": user.id, "role": user.role})
 
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer"
-    }
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
 REFRESH_SECRET_KEY = os.getenv("REFRESH_SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
 def refresh_access_token(refresh_token: str):
-    if not refresh_token:
-        raise HTTPException(status_code=400, detail="Refresh token missing")
-
-    try:
-        payload = jwt.decode(refresh_token, REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
-        role = payload.get("role")
-
-        if user_id is None or role is None:
-            raise HTTPException(status_code=401, detail="Invalid refresh token")
-
-        new_access_token = create_access_token({"user_id": user_id, "role": role})
-        return {"access_token": new_access_token, "token_type": "bearer"}
-
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    payload = decode_refresh_token(refresh_token)
+    new_access_token = create_access_token({"user_id": payload["user_id"], "role": payload["role"]})
+    return {"access_token": new_access_token, "token_type": "bearer"}
