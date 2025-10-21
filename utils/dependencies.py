@@ -15,6 +15,8 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     user = db.query(User).filter(User.id == payload["user_id"]).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+    if payload.get("role") != user.role:
+        raise HTTPException(status_code=401, detail="Token role mismatch")
     return user
 
 
