@@ -81,6 +81,12 @@ def view_borrow_history(db: Session, user_id: int):
         BorrowRecord.user_id == user_id
     ).all()
 
+def view_active_borrow_history(db: Session, user_id: int):
+    return db.query(BorrowRecord).filter(
+        BorrowRecord.user_id == user_id,
+        BorrowRecord.is_returned == False
+    ).all()
+
 #search book by name
 def search_book_by_name(db: Session, book_name: str):
     normalized_input = "".join(book_name.lower().split())

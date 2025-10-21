@@ -18,6 +18,14 @@ def get_available_books(
 ):
     return student_service.get_available_books(db)
 
+#search book by name
+@router.get("/search-book", response_model=BookResponse)
+def search_book(book_name: str, db: Session = Depends(get_db),current_user = Depends(student_required)):
+    book = student_service.search_book_by_name(db, book_name)
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book
+
 # ---------------- Borrow a book ----------------
 @router.post("/borrow/{book_id}", response_model=BorrowRecordResponse)
 async def borrow_book(
@@ -47,10 +55,10 @@ def view_borrow_history(
     user_id = current_user.id
     return student_service.view_borrow_history(db, user_id)
 
-#search book by name
-@router.get("/search-book", response_model=BookResponse)
-def search_book(book_name: str, db: Session = Depends(get_db),current_user = Depends(student_required)):
-    book = student_service.search_book_by_name(db, book_name)
-    if not book:
-        raise HTTPException(status_code=404, detail="Book not found")
-    return book
+@router.get("/active/borrow/history", response_model=List[BorrowRecordResponse])
+def view_active_borrow_history(
+    db: Session = Depends(get_db),
+    current_user = Depends(student_required)
+):
+    user_id = current_user.id
+    return student_service.view_active_borrow_history(db, user_id)
